@@ -10,16 +10,17 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import relationship
 import smtplib
 from email.mime.text import MIMEText
+import os
 
 # Import your forms from the forms.py
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm, ContactForm
 
 
-MY_EMAIL = "testyonatan100@gmail.com"
-MY_PASSWORD = "sbbztjscjvppigkf"
+MY_EMAIL = os.environ.get('MY_TEST_EMAIL')
+MY_PASSWORD = os.environ.get('MY_TEST_PASSWORD')
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
+app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
 ckeditor = CKEditor(app)
 Bootstrap5(app)
 
@@ -34,7 +35,7 @@ gravatar = Gravatar(app,
                     base_url=None)
 
 # CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI", "sqlite:///posts.db")
 db = SQLAlchemy()
 db.init_app(app)
 
@@ -130,7 +131,6 @@ def register():
         return redirect(url_for("get_all_posts"))
 
     return render_template("register.html", form=form, current_user=current_user)
-
 
 
 @app.route('/login', methods=["GET", "POST"])
@@ -259,7 +259,7 @@ def contact():
 def send_email(name, email, phone, message):
     subject = 'New Contact Form Submission'
     body = f"Name: {name}\nEmail: {email}\nPhone: {phone}\nMessage:{message}"
-    receive_email = "yonatank50@gmail.com"
+    receive_email = os.environ.get('MY_TEST_RECEIVE')
 
     msg = MIMEText(body)
     msg['Subject'] = subject
@@ -272,4 +272,4 @@ def send_email(name, email, phone, message):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5002)
+    app.run(debug=False, port=5002)
